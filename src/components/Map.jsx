@@ -5,18 +5,26 @@ import * as turf from "@turf/turf";
 import countries from "../data/countries.geo.json"; // Archivo local
 import { getLocalTime } from "./timezone";
 
-// Identifica el país según las coordenadas
-const getCountryFromCoords = (lat, lng) => {
-  const point = turf.point([lng, lat]);
+// Función para detectar el país basado en las coordenadas
+export const getCountryFromCoords = (lat, lng, countries) => {
+  const point = turf.point([lng, lat]); // Crear un punto con las coordenadas
+
   for (const country of countries.features) {
-    const polygon = turf.multiPolygon(country.geometry.coordinates);
-    if (turf.booleanPointInPolygon(point, polygon)) {
-      console.log(country.properties);
-      return country.properties.ADMIN; // Nombre del país
+    const geometry = country.geometry;
+
+    // Manejar Polygons y MultiPolygons
+    if (geometry.type === "Polygon") {
+      const polygon = turf.polygon(geometry.coordinates);
+      if (turf.booleanPointInPolygon(point, polygon)) {
+        return country.properties.ADMIN; // Devolver el nombre del país
+      }
+    } else if (geometry.type === "MultiPolygon") {
+      const multiPolygon = turf.multiPolygon(geometry.coordinates);
+      if (turf.booleanPointInPolygon(point, multiPolygon)) {
+        return country.properties.ADMIN; // Devolver el nombre del país
+      }
     }
   }
-  return null;
-};
 
 // Maneja clics en el mapa
 function MapClickHandler({ onMapClick }) {
