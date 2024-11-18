@@ -3,28 +3,32 @@ import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import * as turf from "@turf/turf";
 import countries from "../data/countries.geo.json"; // Archivo local
-import { getLocalTime } from "./timezone";
+import timezonesByCountry from "../data/timezone.json"; // Archivo local
 
 // Función para detectar el país basado en las coordenadas
-export const getCountryFromCoords = (lat, lng, countries) => {
-  const point = turf.point([lng, lat]); // Crear un punto con las coordenadas
+const getCountryFromCoords = (lat, lng, countries) => {
+  // Crea un punto con las coordenadas
+  const point = turf.point([lng, lat]);
 
+  // Iterar sobre cada país
   for (const country of countries.features) {
     const geometry = country.geometry;
 
-    // Manejar Polygons y MultiPolygons
+    // Verificar si el punto está dentro del polígono del país
+    // Diferenciar entre polígonos simples y multipolígonos
     if (geometry.type === "Polygon") {
       const polygon = turf.polygon(geometry.coordinates);
       if (turf.booleanPointInPolygon(point, polygon)) {
-        return country.properties.ADMIN; // Devolver el nombre del país
+        return [country.properties.name, country.id]; // Devolver el nombre del país y el id
       }
     } else if (geometry.type === "MultiPolygon") {
       const multiPolygon = turf.multiPolygon(geometry.coordinates);
       if (turf.booleanPointInPolygon(point, multiPolygon)) {
-        return country.properties.ADMIN; // Devolver el nombre del país
+        return [country.properties.name, country.id]; // Devolver el nombre del país y el id como array
       }
     }
   }
+};
 
 // Maneja clics en el mapa
 function MapClickHandler({ onMapClick }) {
@@ -36,6 +40,24 @@ function MapClickHandler({ onMapClick }) {
   return null;
 }
 
+const getLocalTime = (country) => {
+  let offset = null;
+
+  timezonesByCountry.countries.forEach((timezone) => {
+    if (timezone.name === country) {
+      offset = timezone.timezone_offset;
+    }
+  });
+
+  if (offset === 0.0) null;
+  else if (!offset) return "No se encontró la zona horaria";
+
+  const now = new Date();
+  const localTime = new Date(now.getTime() + offset * 3600000);
+
+  return localTime.toLocaleString("es-ES");
+};
+
 // Componente principal del mapa
 export const Map = () => {
   const [coords, setCoords] = useState(null);
@@ -44,7 +66,7 @@ export const Map = () => {
   const handleMapClick = (latlng) => {
     const { lat, lng } = latlng;
     setCoords({ lat, lng });
-    const detectedCountry = getCountryFromCoords(lat, lng);
+    const detectedCountry = getCountryFromCoords(lat, lng, countries)[0];
     setCountry(detectedCountry);
   };
 
