@@ -26,12 +26,12 @@ const getCountryFromCoords = (lat, lng, countries) => {
     if (geometry.type === "Polygon") {
       const polygon = turf.polygon(geometry.coordinates);
       if (turf.booleanPointInPolygon(point, polygon)) {
-        return [country.properties.name, country.id]; // Devolver el nombre del país y el id
+        return country.properties.name; // Devolver el nombre del país y el id
       }
     } else if (geometry.type === "MultiPolygon") {
       const multiPolygon = turf.multiPolygon(geometry.coordinates);
       if (turf.booleanPointInPolygon(point, multiPolygon)) {
-        return [country.properties.name, country.id]; // Devolver el nombre del país y el id como array
+        return country.properties.name; // Devolver el nombre del país y el id como array
       }
     }
   }
@@ -77,7 +77,7 @@ export const Map = () => {
     const { lat, lng } = latlng;
     setCoords({ lat, lng });
     console.log(coords);
-    const detectedCountry = getCountryFromCoords(lat, lng, countries)[0];
+    const detectedCountry = getCountryFromCoords(lat, lng, countries);
     setCountry(detectedCountry);
   };
 
@@ -103,7 +103,8 @@ export const Map = () => {
       <div style={{ marginTop: "20px" }}>
         {coords && (
           <p>
-            <strong>Coordenadas:</strong> Lat {coords.lat}, Lng {coords.lng}
+            <strong>Coordenadas:</strong> Lat {coords.lat.toFixed(2)}, Lng{" "}
+            {coords.lng.toFixed(2)}
           </p>
         )}
         {country ? (
