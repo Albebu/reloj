@@ -100,7 +100,7 @@ export const Clock = () => {
 
   return (
     <div>
-      <canvas ref={canvasRef} width={400} height={400}></canvas>
+      <canvas ref={canvasRef} width={100} height={100}></canvas>
     </div>
   );
 };

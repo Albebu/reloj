@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  useMapEvents,
+  Circle,
+  Marker,
+  Popup,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import * as turf from "@turf/turf";
 import countries from "../data/countries.geo.json"; // Archivo local
@@ -60,12 +67,16 @@ const getLocalTime = (country) => {
 
 // Componente principal del mapa
 export const Map = () => {
-  const [coords, setCoords] = useState(null);
+  const [coords, setCoords] = useState({
+    lat: 0,
+    lng: 0,
+  });
   const [country, setCountry] = useState(null);
 
   const handleMapClick = (latlng) => {
     const { lat, lng } = latlng;
     setCoords({ lat, lng });
+    console.log(coords);
     const detectedCountry = getCountryFromCoords(lat, lng, countries)[0];
     setCountry(detectedCountry);
   };
@@ -76,8 +87,12 @@ export const Map = () => {
       <MapContainer
         center={[0, 0]}
         zoom={2}
-        style={{ height: "500px", width: "100%" }}
+        style={{ height: "500px", width: "80%" }}
       >
+        <Circle center={[0, 0]} radius={200}></Circle>
+        <Marker position={[coords.lat, coords.lng]}>
+          <Popup>A pretty css popup</Popup>
+        </Marker>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"

@@ -25,10 +25,16 @@ export const Content = () => {
   const seconds = actualDate.getSeconds();
 
   return (
-    <div className="flex flex-col text-xl">
-      <Times hours={hours} minutes={minutes} seconds={seconds} />
-      <Dates date={date} month={month} year={year} />
-      <Clock />
+    <div className="flex flex-col text-xl w-screen pt-14">
+      <div className="flex flex-row gap-4">
+        <div>
+          <Times hours={hours} minutes={minutes} seconds={seconds} />
+          <Dates date={date} month={month} year={year} />
+        </div>
+        <div>
+          <Clock />
+        </div>
+      </div>
       <Map />
     </div>
   );
