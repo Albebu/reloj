@@ -3,9 +3,10 @@ import {
   MapContainer,
   TileLayer,
   useMapEvents,
-  Circle,
+  LayersControl,
   Marker,
   Popup,
+  ZoomControl,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import * as turf from "@turf/turf";
@@ -89,14 +90,17 @@ export const Map = () => {
         zoom={2}
         style={{ height: "500px", width: "80%" }}
       >
-        <Circle center={[0, 0]} radius={200}></Circle>
-        <Marker position={[coords.lat, coords.lng]}>
-          <Popup>A pretty css popup</Popup>
-        </Marker>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
+        <LayersControl position="topright">
+          <LayersControl.Overlay checked name="Marker with Popup">
+            <Marker draggable={true} position={[coords.lat, coords.lng]}>
+              <Popup>A pretty css popup</Popup>
+            </Marker>
+          </LayersControl.Overlay>
+        </LayersControl>
         <MapClickHandler onMapClick={handleMapClick} />
       </MapContainer>
 
